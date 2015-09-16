@@ -13,14 +13,56 @@
 <pre id="event-data"></pre>
 
 <script>
-  var model = new falcor.Model({
-    source: new falcor.HttpDataSource('/model.json'),
+  var events = [
+    {
+      name: "React.js Conf",
+      description: "Join us at React.js Conf to shape the future of client-side applications!",
+      location: { city: "Menlo Park", state: "California" }
+    },
+    {
+      name: "Fluent Conference",
+      description: "Learn to design & build websites using JavaScript, HTML5, CSS, Node & the latest web development frameworks at Fluent.",
+      location: { city: "San Francisco", state: "California" }
+    },
+    {
+      name: "PyCon",
+      description: "PyCon is the largest annual gathering for the community using and developing the open-source Python programming language.",
+      location: { city: "Portland", state: "Oregon" }
+    },
+    {
+      name: "HTML5 Developer Conference",
+      description: "HTML5Devconf is the largest gathering of technical software developers, designers.",
+      location: { city: "San Francisco", state: "California" }
+    },
+    {
+      name: "JSConf",
+      description: "JSConf has been the launch pad for many of the greatest things that we now take for granted on the web.",
+      location: { city: "Amelia Island", state: "Florida" }
+    }
+  ];
+
+  /**
+   * Plain Javascript...
+   *
+   * In-memory data access after you fetch data the server
+   */
+
+  console.log(events[0].name);
+  console.log(events[1].location.city);
+  console.log(events[2].description);
+
+
+  /**
+   *  Another way to work with JSON data - using Falcor
+   */
+//  var model = new falcor.Model({
 //    cache: {
+//    // Initial cache of Falcor model, kind of like getInitialState in React
 //      events: [
 //        {
-//          name: "React.js Conf",
-//          description: "Join us at React.js Conf to shape the future of client-side applications!",
-//          location: { city: "Menlo Park", state: "California" }
+//          name: "Disrupt SF 2015",
+//          description: "TechCrunch Disrupt is the world's leading authority in debuting revolutionary startups.",
+//          location: { city: "San Francisco", state: "California" }
 //        },
 //        {
 //          name: "Fluent Conference",
@@ -42,56 +84,186 @@
 //          description: "JSConf has been the launch pad for many of the greatest things that we now take for granted on the web.",
 //          location: { city: "Amelia Island", state: "Florida" }
 //        }
-//
 //      ]
 //    }
-  });
+//  });
 
-
-  /**
-   * Plain Javascript...
-   */
-
-  //  events[0].name;
-  //  events[1].location.city;
 
   /**
    * String notation
+   *
+   * Falcor model uses asynchronous API, regardless whether data is in-memory or over the network
+   *
+   *    get = multiple values. (json object)
+   *    getValue = single value. (primitive value)
+   *
    */
-//  model
-//    .get('events[0].name')
-////    .get('events[0].["name", "description"]')
-////    .get('events[0..2].["name", "description"]')
-////    .get('events[0..2].["name", "description", "location"]')
-////    .get('events[0..2].["name", "description"]', 'events[0..2].location.["city", "state"]')
-////    .getValue('events[0].name')
-////    .getValue('events[0].location') // undefined
-////    .getValue('events[0].location.state')
-//    .then(function(json) {
-//      document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
-//    });
+//    model
+//      .get('events[0].name')
+//  //    .get('events[0].["name", "description"]')
+//  //    .get('events[0..2].["name", "description"]')
+//  //    .get('events[0..2].["name", "description", "location"]')
+//  //    .get('events[0..2].["name", "description"]', 'events[0..2].location.["city", "state"]') // single network request to retrieve multiple values
+//  //    .getValue('events[0].name')
+//  //    .getValue('events[0].location') // undefined
+//  //    .getValue('events[0].location.state')
+//      .then(function(json) {
+//        document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
+//      });
 
 
   /**
    * Array notation
+   *
+   * Preferable for run-time performance and when working with dynamic data, i.e.
+   * no need to do string concatenation.
+   *
    */
-  model
-    .get(['events', 0, ['name', 'description']])
-//    .get(['events', { from: 0, to: 2 }, ['name', 'description']])
-//    .get(['events', { from: 0, to: 2 }, ['name', 'description', 'location']])
-//    .get(['events', { from: 0, to: 2 }, ['name', 'description']], ['events', { from: 0, to: 2 }, 'location', ['city', 'state']])
-//    .getValue(['events', 0 ,'name'])
-//    .getValue(['events', 0, 'location']) // undefined
-//    .getValue(['events', 0, 'location', 'state'])
-    .then(function(json) {
-      document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
-    });
+  //  model
+  //    .get(['events', 0, ['name', 'description']])
+  ////    .get(['events', { from: 0, to: 2 }, ['name', 'description']])
+  ////    .get(['events', { from: 0, to: 2 }, ['name', 'description', 'location']])
+  ////    .get(['events', { from: 0, to: 2 }, ['name', 'description']], ['events', { from: 0, to: 2 }, 'location', ['city', 'state']])
+  ////    .getValue(['events', 0 ,'name'])
+  ////    .getValue(['events', 0, 'location']) // undefined
+  ////    .getValue(['events', 0, 'location', 'state'])
+  //    .then(function(json) {
+  //      document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
+  //    });
+
 
   /**
-   * Season Key Stats
+   * Dealing with duplicate data
+   *
+   * Out of sync data
+   */
+//  model
+//    .setValue(['events', 0, 'location', 'state'], 'CA')
+//    .then(function() {
+//      model
+//        .get(['events', { from: 0, to: 4 }, ['name', 'description']], ['events', { from: 0, to: 4 }, 'location', ['city', 'state']])
+//        .then(function(json) {
+//          document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
+//        });
+//    });
+
+
+  // JSON Graph's $ref used to associate each event's location with a single place in our data.
+//  var $ref = falcor.Model.ref;
+//  model = new falcor.Model({
+////    source: new falcor.HttpDataSource('/model.json'),
+//    cache: {
+//      events: [
+//        {
+//          name: "Disrupt SF 2015",
+//          description: "TechCrunch Disrupt is the world's leading authority in debuting revolutionary startups.",
+//          location: $ref('locationsById[0]')
+////          location: { $type: 'ref', value: 'locationsById[0]' }
+//
+//        },
+//        {
+//          name: "Fluent Conference",
+//          description: "Learn to design & build websites using JavaScript, HTML5, CSS, Node & the latest web development frameworks at Fluent.",
+//          location: $ref('locationsById[0]')
+//        },
+//        {
+//          name: "PyCon",
+//          description: "PyCon is the largest annual gathering for the community using and developing the open-source Python programming language.",
+//          location: $ref('locationsById[1]')
+//        },
+//        {
+//          name: "HTML5 Developer Conference",
+//          description: "HTML5Devconf is the largest gathering of technical software developers, designers.",
+//          location: $ref('locationsById[0]')
+//        },
+//        {
+//          name: "JSConf",
+//          description: "JSConf has been the launch pad for many of the greatest things that we now take for granted on the web.",
+//          location: $ref('locationsById[2]')
+//        }
+//      ],
+//      locationsById: {
+//        0: {
+//          city: "San Francisco",
+//          state: "California"
+//        },
+//        1: {
+//          city: "Portland",
+//          state: "Oregon"
+//        },
+//        2: {
+//          city: "Amelia Island",
+//          state: "Florida"
+//        }
+//      }
+//    }
+//  });
+//// .batch();
+
+  // Now we have a single source of truth for our adta
+//  model
+//    .setValue(['locationsById', 0, 'state'], 'CA')
+//    .then(function() {
+//      model
+//        .get(['events', { from: 0, to: 4 }, ['name', 'description']], ['events', { from: 0, to: 4 }, 'location', ['city', 'state']])
+//        .then(function(json) {
+//          document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
+//        });
+//    });
+
+
+//  model
+//    .get(['events', { from: 0, to: 4 }, ['name', 'description']], ['events', { from: 0, to: 4 }, 'location', ['city', 'state']])
+//    .then(function(json) {
+//      document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
+//    });
+
+  /**
+   * Additional JSON Graph value types (Sentinels):
+   *
+   * ref = for de-dupping data
+   * atom = for treating arrays/objects as values and passing additional metadata to primitives
+   * error
+   *
+   * Available metadata:
+   *
+   *    $type = atom, ref or error
+   *    $expires = how long value should remain in cache: never expire, expire on GC, expire on Datetime
+   *    $timestamp = eliminates race conditions by allowing client and server to attach last modified timestamp for the value
+   *    $size = maximum cache size, when exceeds, least-recently-used value is purged from cache
    */
 
 
+  /**
+   * Falcor Router
+   *
+   * Data is not usually nicely packaged in one big JSON object.
+   * Each path that we request needs to be represented by its own route.
+   *
+   */
+
+//  model
+//    .get(['keystats', 'mlb', ['statName', 'statCategoryId', 'statTypeId', 'statVariationId', 'teamId', 'value']])
+//    .then(function(json) {
+//      document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
+//    });
+
+//  model
+//    .getValue(['keystats', 'mlb'])
+//    .then(function(json) {
+//      document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
+//    });
+//
+//  model
+//    .getValue(['season_stat_leaders', 'mlb'])
+//    .then(function(json) {
+//      document.getElementById('event-data').innerHTML = JSON.stringify(json, null, 4);
+//    });
+
+  // Better to expose stat_categories, stat_types, team_stats instead of relying
+  // on "aliases"-like approach.
+  // Get WHAT you need, WHEN you need it, no need to rely on back-end implementing
+  // aliases for us...
 
 </script>
 </body>
